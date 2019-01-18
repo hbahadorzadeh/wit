@@ -32,7 +32,12 @@ func BuildContainer(args []string) *dig.Container {
 
 func main() {
 	container := BuildContainer(os.Args[1:])
-	container.Invoke(func(webService service.WebService) {
+	err := container.Invoke(func(webService service.WebService) {
 		webService.Start()
 	})
+
+	if err != nil {
+		panic(err)
+	}
+
 }
