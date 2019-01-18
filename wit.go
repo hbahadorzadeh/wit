@@ -32,7 +32,7 @@ func BuildContainer(args []string) *dig.Container {
 
 func main() {
 	container := BuildContainer(os.Args[1:])
-	err := container.Invoke(func(webService service.WebService) {
+	err := container.Invoke(func(webService *service.WebService) {
 		webService.Start()
 	})
 
