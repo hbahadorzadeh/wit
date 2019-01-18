@@ -1,4 +1,4 @@
-package letmein
+package main
 
 import (
 	"github.com/hbahadorzadeh/wit/model"
