@@ -5,7 +5,7 @@ import (
 	"github.com/coreos/go-iptables/iptables"
 	"github.com/hbahadorzadeh/wit/model"
 	"github.com/janeczku/go-ipset/ipset"
-	"github.com/prometheus/common/log"
+	"log"
 	"sync"
 )
 
@@ -41,7 +41,7 @@ func (is *IpsetService) getIpsetService(config model.Config) *ipset.IPSet {
 		}
 	}
 	if err != nil {
-		log.Error(err)
+		log.Fatal(err)
 	}
 	return res
 }
