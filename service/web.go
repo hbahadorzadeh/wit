@@ -9,7 +9,7 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"os"
+	"strings"
 )
 
 const (
@@ -20,7 +20,7 @@ func handleIndex(w http.ResponseWriter, r *http.Request) {
 	io.WriteString(w, htmlIndex)
 }
 
-func handleLogin(ipset *ipset.IPSet) func(w http.ResponseWriter, r *http.Request) {
+func handleLogin(ipset *ipset.IPSet, config model.Config) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		keys, ok := r.URL.Query()["psk"]
 
@@ -32,10 +32,19 @@ func handleLogin(ipset *ipset.IPSet) func(w http.ResponseWriter, r *http.Request
 		// Query()["key"] will return an array of items,
 		// we only want the single item.
 		key := keys[0]
-
+		if config.PresharedKey != "" && config.PresharedKey != key {
+			io.WriteString(w, "PSK does not match!")
+			return
+		}
 		log.Printf("key `%s` from ip `%s`: ", string(key), r.RemoteAddr)
-		ipset.AddOption(r.RemoteAddr, "", 6*60*60)
-		io.WriteString(w, "Wellcome!")
+		addr := strings.Split(r.RemoteAddr, ":")[0]
+		err := ipset.Add(addr, 6*60*60)
+		if err!= nil{
+			log.Println(err)
+			io.WriteString(w, "Failed!")
+		}else {
+			io.WriteString(w, "Wellcome!")
+		}
 	}
 }
 
@@ -51,9 +60,8 @@ func GetWebService(config model.Config, ipset *ipset.IPSet) *WebService {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", handleIndex)
-	mux.HandleFunc("/login/", handleLogin(ipset))
+	mux.HandleFunc("/login/", handleLogin(ipset, config))
 
-	os.MkdirAll(config.CertDir, 0700)
 	if config.AutoCert {
 		server.certManager = autocert.Manager{
 			Prompt:     autocert.AcceptTOS,
@@ -68,9 +76,9 @@ func GetWebService(config model.Config, ipset *ipset.IPSet) *WebService {
 			},
 			Handler: mux,
 		}
-	}else{
+	} else {
 		server.server = &http.Server{
-			Addr: fmt.Sprintf("%s:%d", config.Bind, config.HttpsPort), // e.g. you may want to listen on a high port
+			Addr:    fmt.Sprintf("%s:%d", config.Bind, config.HttpsPort), // e.g. you may want to listen on a high port
 			Handler: mux,
 		}
 	}
@@ -82,10 +90,13 @@ func (wb *WebService) Start() {
 	if wb.config.AutoCert {
 		go func() {
 			h := wb.certManager.HTTPHandler(nil)
+			log.Printf("Http redirecting server started on http://%s:%d\n", wb.config.Bind, wb.config.HttpPort)
 			log.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%d", wb.config.Bind, wb.config.HttpPort), h))
 		}()
+		log.Printf("Https server started on https://%s:%d\n", wb.config.Bind, wb.config.HttpsPort)
 		log.Fatal(wb.server.ListenAndServeTLS("", ""))
-	}else{
-		log.Fatal(wb.server.ListenAndServeTLS(wb.config.HttpsCert, wb.config.HttpsCert))
+	} else {
+		log.Printf("Https server started on https://%s:%d\n", wb.config.Bind, wb.config.HttpsPort)
+		log.Fatal(wb.server.ListenAndServeTLS(wb.config.CertDir+"/"+wb.config.HttpsCert, wb.config.CertDir+"/"+wb.config.HttpsKey))
 	}
 }
