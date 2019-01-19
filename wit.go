@@ -6,6 +6,10 @@ import (
 	"github.com/janeczku/go-ipset/ipset"
 	"go.uber.org/dig"
 	"os"
+	"os/exec"
+	"syscall"
+	"context"
+	"log"
 )
 
 func BuildContainer(args []string) *dig.Container {
@@ -31,13 +35,22 @@ func BuildContainer(args []string) *dig.Container {
 }
 
 func main() {
-	container := BuildContainer(os.Args[1:])
-	err := container.Invoke(func(webService *service.WebService) {
-		webService.Start()
-	})
+	if os.Geteuid() != 0 {
+		log.Println("You need root permission!")
+		cmd := exec.CommandContext(context.Background(), "/usr/bin/sudo", os.Args...)
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+		cmd.Run()
+		os.Exit(0)
+	}else{
+		container := BuildContainer(os.Args[1:])
+		err := container.Invoke(func(webService *service.WebService) {
+			webService.Start()
+		})
 
-	if err != nil {
-		panic(err)
+		if err != nil {
+			panic(err)
+		}
 	}
-
+	os.Exit(0)
 }
