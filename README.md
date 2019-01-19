@@ -1,5 +1,5 @@
 # wit
-"Who Is There" WIT is a linux app using iptables and ipset to cover your precious services. It waits for your knock and if it recognize you, it will let you in!
+"Who Is There" or "WIT" is a linux app using iptables and ipset to cover your precious services. In fact it's a "Port knocking" server. It waits for your knock and if it recognize you, it will let you in!
 
 ```
 Useage:
