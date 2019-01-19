@@ -25,4 +25,4 @@ So it redirects all traffic to wit! Then you can authenticate by a HTTP_GET requ
 ```
 https://YOUR_BIND_IP/login/?pks=YOUR_PRESHARED_KEY
 ```
-If you do not set any psk user will be authenticate by any key.
+If you do not set any psk user will be authenticated by any key.
