@@ -3,6 +3,7 @@ package model
 import (
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 	"strconv"
@@ -17,6 +18,7 @@ func help(err error) {
 Useage:
 	wit [optiosn]
 	options:
+		-a(auto_cert)
         -b bind_address
 		-s server_address
 		-l ListName
@@ -30,25 +32,34 @@ Useage:
 }
 
 type Config struct {
+	AutoCert      bool
 	Host          string
 	Bind          string
 	CertDir       string
 	ListName      string
+	HttpsKey      string
+	HttpsCert     string
 	HttpPort      int
 	HttpsPort     int
 	CoveringPorts []int
 }
 
 func BuildConfigs(args []string) Config {
+	autoCert := false
 	host := ""
 	bind := "127.0.0.1"
-	certDir := "cert"
+	certDir := ""
+	httpsKey := ""
+	httpsCert := ""
 	listName := "WhiteList"
 	httpPort := 8001
 	httpsPort := 8002
 	coveringPorts := []int{80, 443, 1194, 8388}
 	for i, arg := range args {
 		switch arg {
+		case "-a":
+			autoCert = true
+			break
 		case "-s":
 			host = args[i+1]
 			break
@@ -95,11 +106,47 @@ func BuildConfigs(args []string) Config {
 			break
 		}
 	}
+	if autoCert == true {
+		if host == "" {
+			help(errors.New("Hostname most be specified for auto cert!"))
+		}
+		if bind == "127.0.0.1" {
+			help(errors.New("Bind ip address most be valid internet ip for auto cert!"))
+		}
+		if certDir == "" {
+			certDir = "cert"
+		}
+	} else {
+		if certDir == "" {
+			log.Println("No cert dir specified! making `cert` dir and key and cert file!")
+			certDir = "cert"
+		}
+
+		files, err := ioutil.ReadDir(certDir)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		for _, file := range files {
+			if file.Name() == "server.key" {
+				httpsKey = "server.key"
+			}
+			if file.Name() == "server.cert" {
+				httpsCert = "server.cert"
+			}
+		}
+		if httpsKey == "" || httpsCert == "" {
+			help(errors.New("`server.key` or `server.cert` is not present in cert dir!"))
+		}
+	}
 	return Config{
+		AutoCert:      autoCert,
 		Host:          host,
 		Bind:          bind,
 		CertDir:       certDir,
 		ListName:      listName,
+		HttpsCert:     httpsCert,
+		HttpsKey:      httpsKey,
 		HttpPort:      httpPort,
 		HttpsPort:     httpsPort,
 		CoveringPorts: coveringPorts,

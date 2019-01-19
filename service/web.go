@@ -54,29 +54,38 @@ func GetWebService(config model.Config, ipset *ipset.IPSet) *WebService {
 	mux.HandleFunc("/login/", handleLogin(ipset))
 
 	os.MkdirAll(config.CertDir, 0700)
+	if config.AutoCert {
+		server.certManager = autocert.Manager{
+			Prompt:     autocert.AcceptTOS,
+			HostPolicy: autocert.HostWhitelist(config.Host),
+			Cache:      autocert.DirCache(config.CertDir),
+		}
 
-	server.certManager = autocert.Manager{
-		Prompt:     autocert.AcceptTOS,
-		HostPolicy: autocert.HostWhitelist(config.Host),
-		Cache:      autocert.DirCache(config.CertDir),
-	}
-
-	server.server = &http.Server{
-		Addr: fmt.Sprintf("%s:%d", config.Bind, config.HttpsPort), // e.g. you may want to listen on a high port
-		TLSConfig: &tls.Config{
-			GetCertificate: server.certManager.GetCertificate,
-		},
-		Handler: mux,
+		server.server = &http.Server{
+			Addr: fmt.Sprintf("%s:%d", config.Bind, config.HttpsPort), // e.g. you may want to listen on a high port
+			TLSConfig: &tls.Config{
+				GetCertificate: server.certManager.GetCertificate,
+			},
+			Handler: mux,
+		}
+	}else{
+		server.server = &http.Server{
+			Addr: fmt.Sprintf("%s:%d", config.Bind, config.HttpsPort), // e.g. you may want to listen on a high port
+			Handler: mux,
+		}
 	}
 
 	return &server
 }
 
 func (wb *WebService) Start() {
-
-	go func() {
-		h := wb.certManager.HTTPHandler(nil)
-		log.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%d", wb.config.Bind, wb.config.HttpPort), h))
-	}()
-	log.Fatal(wb.server.ListenAndServeTLS("", ""))
+	if wb.config.AutoCert {
+		go func() {
+			h := wb.certManager.HTTPHandler(nil)
+			log.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%d", wb.config.Bind, wb.config.HttpPort), h))
+		}()
+		log.Fatal(wb.server.ListenAndServeTLS("", ""))
+	}else{
+		log.Fatal(wb.server.ListenAndServeTLS(wb.config.HttpsCert, wb.config.HttpsCert))
+	}
 }

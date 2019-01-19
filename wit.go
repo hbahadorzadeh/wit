@@ -1,15 +1,14 @@
 package main
 
 import (
+	"context"
 	"github.com/hbahadorzadeh/wit/model"
 	"github.com/hbahadorzadeh/wit/service"
 	"github.com/janeczku/go-ipset/ipset"
 	"go.uber.org/dig"
+	"log"
 	"os"
 	"os/exec"
-	"syscall"
-	"context"
-	"log"
 )
 
 func BuildContainer(args []string) *dig.Container {
@@ -42,7 +41,7 @@ func main() {
 		cmd.Stderr = os.Stderr
 		cmd.Run()
 		os.Exit(0)
-	}else{
+	} else {
 		container := BuildContainer(os.Args[1:])
 		err := container.Invoke(func(webService *service.WebService) {
 			webService.Start()

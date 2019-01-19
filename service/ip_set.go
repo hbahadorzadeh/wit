@@ -6,6 +6,7 @@ import (
 	"github.com/hbahadorzadeh/wit/model"
 	"github.com/janeczku/go-ipset/ipset"
 	"log"
+	"strconv"
 	"sync"
 )
 
@@ -25,19 +26,25 @@ func (is *IpsetService) getIpsetService(config model.Config) *ipset.IPSet {
 	res, err := ipset.New(config.ListName, "hash:ip", &ipset.Params{})
 	//iptables -A INPUT -m set ! --match-set WhiteList src  -d ip -p tcp --dport 80 -j REDIRECT --to-port %d
 	ipt, err := iptables.New()
+	iptList, err := ipt.List("nat", "PREROUTING")
 	for _, port := range config.CoveringPorts {
-		list, err := ipt.List("filter", "INPUT")
 		if err != nil {
 		}
 		flag := false
-		for _, rule := range list {
-			if rule == fmt.Sprintf("-A INPUT -m set ! --match-set WhiteList src  -d %s -p tcp --dport %d -j REDIRECT --to-port %d", config.Bind, port, config.HttpsPort) {
+		for _, rule := range iptList {
+			if rule == fmt.Sprintf("-A PREROUTING -d %s/32 -p tcp -m set ! --match-set WhiteList src -m tcp --dport %d -j REDIRECT --to-ports %d", config.Bind, port, config.HttpsPort) {
 				flag = true
+				log.Printf("Rule for port %d was present\n", port)
 				break
 			}
 		}
 		if !flag {
-			ipt.Append("filter", "INPUT", "-m", "set", "!", "--match-set", config.ListName, "src", "-d", config.Bind, "-p", "tcp", "--dport", string(port), "-j", "REDIRECT", "--to-port", string(config.HttpsPort))
+			err := ipt.Append("nat", "PREROUTING", "-m", "set", "!", "--match-set", config.ListName, "src", "-d", config.Bind, "-p", "tcp", "--dport", strconv.FormatInt(int64(port), 10), "-j", "REDIRECT", "--to-port", strconv.FormatInt(int64(config.HttpsPort), 10))
+			if err != nil {
+				log.Printf("Failed to add rule for port %d\n%v\n", port, err)
+			} else {
+				log.Printf("Rule add for port %d\n", port)
+			}
 		}
 	}
 	if err != nil {
