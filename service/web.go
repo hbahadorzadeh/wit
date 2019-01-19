@@ -39,10 +39,10 @@ func handleLogin(ipset *ipset.IPSet, config model.Config) func(w http.ResponseWr
 		log.Printf("key `%s` from ip `%s`: ", string(key), r.RemoteAddr)
 		addr := strings.Split(r.RemoteAddr, ":")[0]
 		err := ipset.Add(addr, 6*60*60)
-		if err!= nil{
+		if err != nil {
 			log.Println(err)
 			io.WriteString(w, "Failed!")
-		}else {
+		} else {
 			io.WriteString(w, "Wellcome!")
 		}
 	}

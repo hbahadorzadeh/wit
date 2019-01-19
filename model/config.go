@@ -28,7 +28,7 @@ Useage:
 	wit [optiosn]
 	options:
 		-a(auto_cert)
-        -b bind_address
+		-b bind_address
 		-s server_address
 		-l ListName
 		-c CertDir
@@ -138,7 +138,7 @@ func BuildConfigs(args []string) Config {
 			files, err := ioutil.ReadDir(certDir)
 			if err != nil {
 				log.Print(err)
-			}else {
+			} else {
 				for _, file := range files {
 					if file.Name() == "server.key" {
 						httpsKey = "server.key"
@@ -244,7 +244,7 @@ func BuildConfigs(args []string) Config {
 			files, err := ioutil.ReadDir(certDir)
 			if err != nil {
 				log.Fatal(err)
-			}else {
+			} else {
 				for _, file := range files {
 					if file.Name() == "server.key" {
 						httpsKey = "server.key"
