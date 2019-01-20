@@ -14,6 +14,7 @@ A port knocking server
 .OP -b,--bind-address bind_address
 .OP -h,--host-name host_name
 .OP -l,--list-name ListName
+.OP -P,--policy iptables_policy
 .OP -c,--cert-path CertPath
 .OP -p,--http-port http_port
 .OP -tp,--tls-port https_port
@@ -32,10 +33,7 @@ and
 .B ipset
 to cover your precious services. In fact it's a
 .B "Port knocking"
-server. It waits for your knock and if it recognize you, it will let you in! It creates an ipset list (default name :"WhiteList") and adds iptables rules for each given CoveringPorts as below:
-
-.B \"-t nat -A OUTPUT -d 127.0.0.1/32 -p tcp -m set ! --match-set WhiteList src -m tcp --dport YOUR_SERVICE_PORT -j REDIRECT --to-ports WIT_HTTPS_PORT\"
-
+server. It waits for your knock and if it recognize you, it will let you in! It creates an ipset list (default name :"WhiteList") and adds iptables rules for each given CoveringPort.
 So it redirects all traffic to wit! Then you can authenticate by a HTTP_GET request like below and boom! You can reach your service for 6 hours :)
 
 .I https://YOUR_BIND_IP/login/?pks=YOUR_PRESHARED_KEY
@@ -63,6 +61,11 @@ Default is
 The ipset list name.
 Default value is
 .B "WhiteList"
+.TP
+.B -P,--policy
+This defines the policy to be applied on iptables, DROP or REDIRECT
+Default value is
+.B "REDIRECT"
 .TP
 .B -c,--cert-path
 Path to certificate and key file to start an https web server. The app will look for "server.key" and "server.crt" in the given path, and if it could not find each it will create one.
