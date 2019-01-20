@@ -72,7 +72,7 @@ func BuildConfigs(args []string) Config {
 		switch arg {
 		case "-h":
 		case "--help":
-			help(errors.New(""))
+			help(nil)
 		case "-version":
 			help(errors.New(fmt.Sprintf("wit Version: %s", VERSOIN)))
 		case "-a":
