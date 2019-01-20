@@ -19,6 +19,8 @@ A port knocking server
 .OP -tp,--tls-port https_port
 .OP -cp,--covering-ports CoveringPorts
 .OP -psk PresharedKey
+.OP -h,--help
+.OP -version
 
 .SH DESCRIPTION
 .B "Who Is There"
@@ -52,7 +54,7 @@ The ip address you wish to run the service on.
 Default value is
 .B "127.0.0.1"
 .TP
-.B -h,--host-name
+.B -H,--host-name
 The domain name of server you are running your service on.
 Default is
 .B empty
@@ -85,6 +87,12 @@ Default is
 .B -psk
 A pre-shared key used to authenticate users.
 Default is empty and if it's left empty it will authenticate users with any psk!
+.TP
+.B -h,--help
+Prints out help.
+.TP
+.B -version
+Prints out version and help.
 
 .SH EXAMPLES
 .B wit

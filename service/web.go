@@ -65,8 +65,8 @@ func GetWebService(config model.Config, ipset *ipset.IPSet) *WebService {
 	if config.AutoCert {
 		server.certManager = autocert.Manager{
 			Prompt:     autocert.AcceptTOS,
-			HostPolicy: autocert.HostWhitelist(config.Host),
-			Cache:      autocert.DirCache(config.CertDir),
+			HostPolicy: autocert.HostWhitelist(config.Hostname),
+			Cache:      autocert.DirCache(config.CertPath),
 		}
 
 		server.server = &http.Server{
@@ -97,6 +97,6 @@ func (wb *WebService) Start() {
 		log.Fatal(wb.server.ListenAndServeTLS("", ""))
 	} else {
 		log.Printf("Https server started on https://%s:%d\n", wb.config.Bind, wb.config.HttpsPort)
-		log.Fatal(wb.server.ListenAndServeTLS(wb.config.CertDir+"/"+wb.config.HttpsCert, wb.config.CertDir+"/"+wb.config.HttpsKey))
+		log.Fatal(wb.server.ListenAndServeTLS(wb.config.CertPath+"/"+wb.config.HttpsCert, wb.config.CertPath+"/"+wb.config.HttpsKey))
 	}
 }

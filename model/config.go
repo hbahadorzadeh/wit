@@ -27,24 +27,26 @@ func help(err error) {
 Useage:
 	wit [optiosn]
 	options:
-		-a(auto_cert)
-		-b bind_address
-		-s server_address
-		-l ListName
-		-c CertDir
-		-p http_port 
-		-tp https_port
-		-cp CoveringPorts(Comma seprated)
-		-psk PresharedKey		
+		-h,--help
+		-version
+		-a,--auto-cert
+		-b,--bind-address bind_address
+		-H,--host-name host_name
+		-l,--list-name ListName
+		-c,--cert-path CertPath
+		-p,--http-port http_port
+		-tp,--tls-port https_port
+		-cp,--covering-ports CoveringPorts
+		-psk PresharedKey	
 `)
 	os.Exit(1)
 }
 
 type Config struct {
 	AutoCert      bool
-	Host          string
+	Hostname      string
 	Bind          string
-	CertDir       string
+	CertPath      string
 	ListName      string
 	HttpsKey      string
 	HttpsCert     string
@@ -68,22 +70,33 @@ func BuildConfigs(args []string) Config {
 	presharedKey := ""
 	for i, arg := range args {
 		switch arg {
+		case "-h":
+		case "--help":
+			help(errors.New(""))
+		case "-version":
+			help(errors.New(fmt.Sprintf("wit Version: %s", VERSOIN)))
 		case "-a":
+		case "--auto-cert":
 			autoCert = true
 			break
-		case "-s":
+		case "-H":
+		case "--host-name":
 			host = args[i+1]
 			break
 		case "-b":
+		case "--bind-address":
 			bind = args[i+1]
 			break
 		case "-l":
+		case "--list-name":
 			listName = args[i+1]
 			break
 		case "-c":
+		case "--cert-path":
 			certDir = args[i+1]
 			break
 		case "-p":
+		case "--http-port":
 			portStr := args[i+1]
 			port, err := strconv.Atoi(portStr)
 			if err == nil {
@@ -93,6 +106,7 @@ func BuildConfigs(args []string) Config {
 			}
 			break
 		case "-tp":
+		case "--tls-port":
 			portStr := args[i+1]
 			port, err := strconv.Atoi(portStr)
 			if err == nil {
@@ -102,6 +116,7 @@ func BuildConfigs(args []string) Config {
 			}
 			break
 		case "-cp":
+		case "--covering-ports":
 			portsStr := args[i+1]
 			coveringPorts = []int{}
 			for _, portStr := range strings.Split(portsStr, ",") {
@@ -261,9 +276,9 @@ func BuildConfigs(args []string) Config {
 	}
 	return Config{
 		AutoCert:      autoCert,
-		Host:          host,
+		Hostname:      host,
 		Bind:          bind,
-		CertDir:       certDir,
+		CertPath:      certDir,
 		ListName:      listName,
 		HttpsCert:     httpsCert,
 		HttpsKey:      httpsKey,
