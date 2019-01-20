@@ -24,6 +24,6 @@ func (is *IpsetService) getIpsetService(config model.Config, ipts IpTables) *ips
 	if err != nil {
 		log.Panic(err)
 	}
-	ipts.Init(config)
+	ipts.Init()
 	return res
 }
