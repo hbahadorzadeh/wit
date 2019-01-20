@@ -33,6 +33,7 @@ Useage:
 		-b,--bind-address bind_address
 		-H,--host-name host_name
 		-l,--list-name ListName
+		-P,--policy redirect or drop
 		-c,--cert-path CertPath
 		-p,--http-port http_port
 		-tp,--tls-port https_port
@@ -54,6 +55,7 @@ type Config struct {
 	HttpsPort     int
 	CoveringPorts []int
 	PresharedKey  string
+	Policy        string
 }
 
 func BuildConfigs(args []string) Config {
@@ -68,6 +70,7 @@ func BuildConfigs(args []string) Config {
 	httpsPort := 8002
 	coveringPorts := []int{80, 443, 1194, 8388}
 	presharedKey := ""
+	policy := "redirect"
 	for i, arg := range args {
 		switch arg {
 		case "-h":
@@ -90,6 +93,10 @@ func BuildConfigs(args []string) Config {
 		case "-l":
 		case "--list-name":
 			listName = args[i+1]
+			break
+		case "-P":
+		case "--policy":
+			policy = args[i+1]
 			break
 		case "-c":
 		case "--cert-path":
@@ -286,5 +293,6 @@ func BuildConfigs(args []string) Config {
 		HttpsPort:     httpsPort,
 		CoveringPorts: coveringPorts,
 		PresharedKey:  presharedKey,
+		Policy:        policy,
 	}
 }
