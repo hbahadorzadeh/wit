@@ -19,10 +19,15 @@ func BuildContainer(args []string) *dig.Container {
 		return model.BuildConfigs(args)
 	})
 
+	//IptablesService
+	container.Provide(func(config model.Config) *service.IpTables {
+		return service.GetIptablesService(config)
+	})
+
 	//IpsetService
 	ipsetServiceInstance := service.IpsetService{}
-	container.Provide(func(config model.Config) *ipset.IPSet {
-		return ipsetServiceInstance.GetInstance(config)
+	container.Provide(func(config model.Config, ipt service.IpTables) *ipset.IPSet {
+		return ipsetServiceInstance.GetInstance(config, ipt)
 	})
 
 	//WebService
