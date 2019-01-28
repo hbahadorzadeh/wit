@@ -9,3 +9,18 @@ before_install:
 script:
   - go test
   - go build
+
+before_deploy:
+      # Set up git user name and tag this commit
+      - git config --local user.name "Hamed Bahadorzadeh"
+      - git config --local user.email "Hamed Bahadorzadeh <h.bahadorzadeh@gmail.com>"
+      - export TRAVIS_TAG=${TRAVIS_TAG:-$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)}
+      - git tag $TRAVIS_TAG
+
+deploy:
+  provider: releases
+  api_key: "26a0c1011fc090c0eb62476fa9068d617e9d8aca"
+  file: "wit"
+  skip_cleanup: true
+  on:
+    tags: true
