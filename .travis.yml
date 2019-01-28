@@ -11,16 +11,28 @@ script:
   - go build
 
 before_deploy:
-      # Set up git user name and tag this commit
-      - git config --local user.name "Hamed Bahadorzadeh"
-      - git config --local user.email "Hamed Bahadorzadeh <h.bahadorzadeh@gmail.com>"
-      - export TRAVIS_TAG=${TRAVIS_TAG:-$(date +'%Y%m%d%H%M%S')-$(git log --format=%h -1)}
-      - git tag $TRAVIS_TAG
+  - export TRAVIS_TAG="1.0.$TRAVIS_BUILD_NUMBER"
+  - echo "$TRAVIS_TAG" "$TRAVIS_COMMIT"
+  - git config --local user.name "Hamed Bahadorzadeh"
+  - git config --local user.email "Hamed Bahadorzadeh <h.bahadorzadeh@gmail.com>"
+  - git tag "$TRAVIS_TAG" "$TRAVIS_COMMIT"
 
 deploy:
   provider: releases
-  api_key: "26a0c1011fc090c0eb62476fa9068d617e9d8aca"
-  file: "wit"
+  tag_name: $TRAVIS_TAG
+  target_commitish: $TRAVIS_COMMIT
+  name: $TRAVIS_TAG
+  overwrite: true
   skip_cleanup: true
+  api_key: "26a0c1011fc090c0eb62476fa9068d617e9d8aca"
+  file_glob: true
+  file:
+    - wit
   on:
-    tags: true
+    branch: master
+    repo: hbahadorzadeh/wit
+
+notifications:
+  email:
+    on_success: never
+    on_failure: always
