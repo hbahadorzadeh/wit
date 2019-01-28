@@ -73,37 +73,23 @@ func BuildConfigs(args []string) Config {
 	policy := "redirect"
 	for i, arg := range args {
 		switch arg {
-		case "-h":
-		case "--help":
+		case "-h","--help":
 			help(nil)
 		case "-version":
 			help(errors.New(fmt.Sprintf("wit Version: %s", VERSOIN)))
-		case "-a":
-		case "--auto-cert":
+		case "-a","--auto-cert":
 			autoCert = true
-			break
-		case "-H":
-		case "--host-name":
+		case "-H","--host-name":
 			host = args[i+1]
-			break
-		case "-b":
-		case "--bind-address":
+		case "-b","--bind-address":
 			bind = args[i+1]
-			break
-		case "-l":
-		case "--list-name":
+		case "-l","--list-name":
 			listName = args[i+1]
-			break
-		case "-P":
-		case "--policy":
+		case "-P","--policy":
 			policy = args[i+1]
-			break
-		case "-c":
-		case "--cert-path":
+		case "-c","--cert-path":
 			certDir = args[i+1]
-			break
-		case "-p":
-		case "--http-port":
+		case "-p","--http-port":
 			portStr := args[i+1]
 			port, err := strconv.Atoi(portStr)
 			if err == nil {
@@ -111,9 +97,7 @@ func BuildConfigs(args []string) Config {
 			} else {
 				help(errors.New(fmt.Sprintf("Invalid HttpPort(%s)", portStr)))
 			}
-			break
-		case "-tp":
-		case "--tls-port":
+		case "-tp","--tls-port":
 			portStr := args[i+1]
 			port, err := strconv.Atoi(portStr)
 			if err == nil {
@@ -121,9 +105,7 @@ func BuildConfigs(args []string) Config {
 			} else {
 				help(errors.New(fmt.Sprintf("Invalid HttpsPort(%s)", portStr)))
 			}
-			break
-		case "-cp":
-		case "--covering-ports":
+		case "-cp","--covering-ports":
 			portsStr := args[i+1]
 			coveringPorts = []int{}
 			for _, portStr := range strings.Split(portsStr, ",") {
@@ -134,12 +116,8 @@ func BuildConfigs(args []string) Config {
 					help(errors.New(fmt.Sprintf("Invalid HttpPort(%s)", portStr)))
 				}
 			}
-			break
 		case "-psk":
 			presharedKey = args[i+1]
-			break
-		default:
-			break
 		}
 	}
 	if autoCert == true {

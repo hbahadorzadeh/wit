@@ -55,12 +55,12 @@ func (it *IpTables) init(config model.Config) {
 		it.table = "filter"
 		it.parentchain = "INPUT"
 	case "redirect":
+		fallthrough
 	default:
 		it.policy = REDIRECT
 		it.table = "nat"
 		it.parentchain = "PREROUTING"
 	}
-
 	it.bind = config.Bind
 
 	it.httpsPort = config.HttpsPort
@@ -125,6 +125,7 @@ func (it IpTables) makeRule(dport int) []string {
 	case DROP:
 		rule = append(rule, []string{"-j", "DROP"}...)
 	case REDIRECT:
+		fallthrough
 	default:
 		rule = append(rule, []string{"-j", "REDIRECT", "--to-port", strconv.FormatInt(int64(it.httpsPort), 10)}...)
 	}
