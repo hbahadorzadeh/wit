@@ -24,7 +24,7 @@ deploy:
   name: $TRAVIS_TAG
   overwrite: true
   skip_cleanup: true
-  api_key: "26a0c1011fc090c0eb62476fa9068d617e9d8aca"
+  api_key:  $GITHUB_TOKEN
   file_glob: true
   file:
     - wit
