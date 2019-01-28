@@ -12,14 +12,14 @@ type IpsetService struct {
 	value *ipset.IPSet
 }
 
-func (s *IpsetService) GetInstance(config model.Config, ipts IpTables) *ipset.IPSet {
+func (s *IpsetService) GetInstance(config model.Config, ipts *IpTables) *ipset.IPSet {
 	s.once.Do(func() {
 		s.value = s.getIpsetService(config, ipts)
 	})
 	return s.value
 }
 
-func (is *IpsetService) getIpsetService(config model.Config, ipts IpTables) *ipset.IPSet {
+func (is *IpsetService) getIpsetService(config model.Config, ipts *IpTables) *ipset.IPSet {
 	res, err := ipset.New(config.ListName, "hash:ip", &ipset.Params{})
 	if err != nil {
 		log.Panic(err)

@@ -26,7 +26,7 @@ func BuildContainer(args []string) *dig.Container {
 
 	//IpsetService
 	ipsetServiceInstance := service.IpsetService{}
-	container.Provide(func(config model.Config, ipt service.IpTables) *ipset.IPSet {
+	container.Provide(func(config model.Config, ipt *service.IpTables) *ipset.IPSet {
 		return ipsetServiceInstance.GetInstance(config, ipt)
 	})
 
